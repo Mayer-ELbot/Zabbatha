@@ -10,7 +10,7 @@ CONFIG_FILE = "zabbatha_config.json"
 
 class AppState:
     def __init__(self):
-        self.lang = "ar"
+        self.lang = "en"
         self.custom_folders: List[str] = []
         self.game_settings: Dict[str, Dict[str, Any]] = {}
         self.load()
@@ -46,7 +46,7 @@ class AppState:
             try:
                 with open(CONFIG_FILE, "r", encoding="utf-8") as f:
                     data = json.load(f)
-                    self.lang = data.get("lang", "ar")
+                    self.lang = data.get("lang", "en")
                     self.custom_folders = data.get("custom_folders", [])
                     self.game_settings = data.get("game_settings", {})
             except Exception:

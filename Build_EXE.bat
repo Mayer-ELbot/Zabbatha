@@ -6,7 +6,7 @@ echo   Packaging into Single Standalone Windows Executable (.exe)
 echo =======================================================
 echo.
 
-python -m PyInstaller --noconfirm --onefile --windowed --name "Zabbatha" --clean run.py
+python -m PyInstaller --noconfirm --onefile --windowed --name "Zabbatha" --collect-all customtkinter --clean run.py
 
 echo.
 if exist "dist\Zabbatha.exe" (

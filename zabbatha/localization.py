@@ -106,6 +106,34 @@ STRINGS = {
     "open_config_btn": {
         "en": "📂 Open Config Dir",
         "ar": "📂 فتح مسار Config"
+    },
+    "nav_library": {
+        "en": "🎮 Game Library",
+        "ar": "🎮 مكتبة الألعاب"
+    },
+    "nav_hardware": {
+        "en": "⚡ Hardware HUD",
+        "ar": "⚡ تقرير الهاردوير"
+    },
+    "nav_steam_hub": {
+        "en": "🔓 Steam & DLC Hub",
+        "ar": "🔓 بوابة ستيم والـ DLC"
+    },
+    "nav_settings": {
+        "en": "⚙️ Settings",
+        "ar": "⚙️ الإعدادات"
+    },
+    "launch_game_btn": {
+        "en": "🚀 Launch Game",
+        "ar": "🚀 تشغيل اللعبة"
+    },
+    "steam_family_fix": {
+        "en": "Family Sharing & DLC Fix",
+        "ar": "إصلاح مكتبة العائلة والـ DLC"
+    },
+    "generate_applist_btn": {
+        "en": "🚀 Generate AppList Files",
+        "ar": "🚀 توليد ملفات AppList لستيم"
     }
 }
 

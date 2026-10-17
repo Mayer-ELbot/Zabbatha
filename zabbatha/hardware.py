@@ -11,11 +11,19 @@ import subprocess
 import psutil
 from typing import Dict, Any, List
 
+CREATE_NO_WINDOW = 0x08000000 if sys.platform == "win32" else 0
+_CACHED_DRIVES = None
+_CACHED_SPECS = None
+
 def get_drive_types() -> Dict[str, str]:
     """
     Detects whether partitions (C:, D:, E:, etc.) reside on an SSD or HDD.
-    Uses PowerShell Get-PhysicalDisk and Get-Partition.
+    Uses PowerShell Get-PhysicalDisk without flashing console window. Cached in memory.
     """
+    global _CACHED_DRIVES
+    if _CACHED_DRIVES is not None:
+        return dict(_CACHED_DRIVES)
+
     drive_types: Dict[str, str] = {}
     try:
         cmd = (
@@ -30,8 +38,9 @@ def get_drive_types() -> Dict[str, str]:
             '}'
         )
         res = subprocess.run(
-            ["powershell", "-NoProfile", "-Command", cmd],
-            capture_output=True, text=True, timeout=5
+            ["powershell", "-NoProfile", "-NonInteractive", "-Command", cmd],
+            capture_output=True, text=True, timeout=5,
+            creationflags=CREATE_NO_WINDOW
         )
         for line in res.stdout.strip().splitlines():
             line = line.strip()
@@ -54,6 +63,7 @@ def get_drive_types() -> Dict[str, str]:
         if letter and letter not in drive_types:
             drive_types[letter] = "SSD" if "c" in letter.lower() else "HDD"
 
+    _CACHED_DRIVES = dict(drive_types)
     return drive_types
 
 def get_gpu_info() -> Dict[str, Any]:
@@ -71,8 +81,9 @@ def get_gpu_info() -> Dict[str, Any]:
             'ForEach-Object { "$($_.Name);$($_.AdapterRAM);$($_.DriverVersion)" }'
         )
         res = subprocess.run(
-            ["powershell", "-NoProfile", "-Command", cmd],
-            capture_output=True, text=True, timeout=5
+            ["powershell", "-NoProfile", "-NonInteractive", "-Command", cmd],
+            capture_output=True, text=True, timeout=5,
+            creationflags=CREATE_NO_WINDOW
         )
         for line in res.stdout.strip().splitlines():
             parts = line.strip().split(";")
@@ -199,10 +210,15 @@ def get_cpu_info() -> Dict[str, Any]:
         "score": score
     }
 
-def get_system_specs() -> Dict[str, Any]:
+def get_system_specs(force_refresh: bool = False) -> Dict[str, Any]:
     """
     Aggregates full system specs for Zabbatha's estimation matrix.
+    Cached in memory to eliminate repeated PowerShell/WMI calls.
     """
+    global _CACHED_SPECS
+    if _CACHED_SPECS is not None and not force_refresh:
+        return dict(_CACHED_SPECS)
+
     gpu = get_gpu_info()
     cpu = get_cpu_info()
     ram = psutil.virtual_memory()
@@ -214,7 +230,7 @@ def get_system_specs() -> Dict[str, Any]:
     ram_score = min(100, int((total_ram_gb / 32.0) * 100))
     overall_score = int((gpu["score"] * 0.65) + (cpu["score"] * 0.25) + (ram_score * 0.10))
 
-    return {
+    _CACHED_SPECS = {
         "gpu": gpu,
         "cpu": cpu,
         "ram": {
@@ -226,6 +242,7 @@ def get_system_specs() -> Dict[str, Any]:
         "overall_score": overall_score,
         "os": f"Windows {platform.version()}"
     }
+    return dict(_CACHED_SPECS)
 
 if __name__ == "__main__":
     import json
